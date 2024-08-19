@@ -1,0 +1,9 @@
+Package: me.marioparaschiv.lastfm4ytm
+Name: Last.fm for YouTube Music
+Version: 0.0.1
+Architecture: iphoneos-arm
+Description: Last.fm integration for YouTube Music
+Maintainer: eternal
+Author: eternal
+Section: Tweaks
+Depends: mobilesubstrate (>= 0.9.5000)
