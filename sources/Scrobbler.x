@@ -2,6 +2,7 @@
 
 static NSString *currentSongLocalID = @"";
 static double currentTotalMediaTime = 0;
+static BOOL currentSongReplayed = NO;
 static NSTimer *timer = nil;
 static BOOL scrobbled = NO;
 static BOOL isPlaying = NO;
@@ -18,7 +19,16 @@ static BOOL isPlaying = NO;
 	double mediaTime = [controller nowPlayingVideoMediaTime];
 	NSString *localID = [item localID];
 
-	if (localID != currentSongLocalID) {
+
+	if ((!currentSongReplayed && currentSongLocalID == localID && mediaTime < 1) && !isPlaying) {
+		currentSongReplayed = YES;
+	}
+
+	if ((localID != currentSongLocalID || mediaTime > 1) && isPlaying) {
+		currentSongReplayed = NO;
+	}
+
+	if ((localID != currentSongLocalID || currentSongReplayed) && isPlaying) {
 		NSLog(@"Now Playing: %@ - %@", artist, track);
 
 		scrobbled = NO;
