@@ -99,7 +99,7 @@ static NSString* const LFMBaseURL = @"https://ws.audioscrobbler.com/2.0";
 					NSLog(@"Response: %@", responseDictionary);
 
 					id error = responseDictionary[@"error"];
-					if ([error isEqual:@9]) {
+					if ([error isEqual:@9] || [error isEqual:@4]) {
 						[LFMClient createToken];
 					}
 

@@ -10,38 +10,40 @@ static BOOL isPlaying = NO;
 @implementation LFMScrobbler
 
 + (void) poll {
-	YTQueueController *controller = [LFMYouTubeInstances queueController];
-	YTQueueItem *item = [controller nowPlayingMusicQueueItem];
-	YTIPlaylistPanelVideoRenderer *renderer = [item videoRenderer];
+	dispatch_async(dispatch_get_main_queue(), ^{
+		YTQueueController *controller = [LFMYouTubeInstances queueController];
+		YTQueueItem *item = [controller nowPlayingMusicQueueItem];
+		YTIPlaylistPanelVideoRenderer *renderer = [item videoRenderer];
 
-	NSString *artist = [[renderer shortBylineText] stringWithFormattingRemoved];
-	NSString *track = [[renderer title] stringWithFormattingRemoved];
-	double mediaTime = [controller nowPlayingVideoMediaTime];
-	NSString *localID = [item localID];
+		NSString *artist = [[renderer shortBylineText] stringWithFormattingRemoved];
+		NSString *track = [[renderer title] stringWithFormattingRemoved];
+		double mediaTime = [controller nowPlayingVideoMediaTime];
+		NSString *localID = [item localID];
 
 
-	if ((!currentSongReplayed && currentSongLocalID == localID && mediaTime < 1) && !isPlaying) {
-		currentSongReplayed = YES;
-	}
+		if ((!currentSongReplayed && currentSongLocalID == localID && mediaTime < 1) && !isPlaying) {
+			currentSongReplayed = YES;
+		}
 
-	if ((localID != currentSongLocalID || mediaTime > 1) && isPlaying) {
-		currentSongReplayed = NO;
-	}
+		if ((localID != currentSongLocalID || mediaTime > 1) && isPlaying) {
+			currentSongReplayed = NO;
+		}
 
-	if ((localID != currentSongLocalID || currentSongReplayed) && isPlaying) {
-		NSLog(@"Now Playing: %@ - %@", artist, track);
+		if ((localID != currentSongLocalID || currentSongReplayed) && isPlaying) {
+			NSLog(@"Now Playing: %@ - %@", artist, track);
 
-		scrobbled = NO;
-		currentSongLocalID = localID;
-		[LFMClient setNowPlaying:track artist:artist duration:currentTotalMediaTime];
-	}
+			scrobbled = NO;
+			currentSongLocalID = localID;
+			[LFMClient setNowPlaying:track artist:artist duration:currentTotalMediaTime];
+		}
 
-	if (!scrobbled && isPlaying && mediaTime >= (currentTotalMediaTime / 2)) {
-		NSLog(@"Scrobbling: %@ - %@", artist, track);
+		if (!scrobbled && isPlaying && mediaTime >= (currentTotalMediaTime / 2)) {
+			NSLog(@"Scrobbling: %@ - %@", artist, track);
 
-		[LFMClient scrobble:track artist:artist duration:currentTotalMediaTime elapsed:mediaTime];
-		scrobbled = YES;
-	}
+			[LFMClient scrobble:track artist:artist duration:currentTotalMediaTime elapsed:mediaTime];
+			scrobbled = YES;
+		}
+	});
 }
 
 @end
@@ -55,13 +57,15 @@ static BOOL isPlaying = NO;
 	if ((int)(size_t)to == 3) {
 		isPlaying = TRUE;
 
-		timer = [NSTimer
-			scheduledTimerWithTimeInterval:1.0f
-			target:[NSBlockOperation blockOperationWithBlock:^{ [LFMScrobbler poll]; }]
-			selector:@selector(main)
-			userInfo:nil
-			repeats:YES
-		];
+		dispatch_async(dispatch_get_main_queue(), ^{
+			timer = [NSTimer
+				scheduledTimerWithTimeInterval:1.0f
+				target:[NSBlockOperation blockOperationWithBlock:^{ [LFMScrobbler poll]; }]
+				selector:@selector(main)
+				userInfo:nil
+				repeats:YES
+			];
+		});
 	} else {
 		if (timer) {
 			[timer invalidate];
