@@ -1,0 +1,5 @@
+services:
+  environment:
+    build: .
+    volumes:
+      - ./:/home/user/src
