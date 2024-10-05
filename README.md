@@ -8,11 +8,26 @@
 ---
 
 ## Requirements
-- A jailbroken device OR the YouTube Music IPA sideloaded with this tweak.
 
-## Setup
-- Fill out the `LASTFM_API_KEY` and `LASTFM_API_SECRET` variables in `Makefile`
-- Build with `[make|gmake] clean package FINALPACKAGE=1`
+- Jailbroken iOS device, or one with sideloading capabilities
+- Last.fm API key
+- [Theos](https://theos.dev)
+
+## Building
+
+1. Navigate to <https://last.fm/api/account/create>
+2. Fill in the following:
+    - Contact email: Your email
+    - Application name: (Anything)
+    - Callback URL: `localhost:3000`
+3. Fill in `MakeFile`:
+    - `LASTFM_API_KEY`: API key from the previous step
+    - `LASTFM_API_SECRET`: API secret from the previous step
+4. Build with `make clean package FINALPACKAGE=1`
+    > If you get `Makefile:8: /makefiles/common.mk: No such file or directory`, you do not have Theos installed. [Install Theos](https://theos.dev/docs/installation)
+
+The resulting `.deb` tweak file will be in `packages/`.
 
 ## Licensing
+
 See [LICENSE](/LICENSE).
