@@ -19,7 +19,7 @@
 2. Fill in the following:
     - Contact email: Your email
     - Application name: (Anything)
-    - Callback URL: `localhost:3000`
+    - Callback URL: `http://localhost:3000`
 3. Fill in `MakeFile`:
     - `LASTFM_API_KEY`: API key from the previous step
     - `LASTFM_API_SECRET`: API secret from the previous step
