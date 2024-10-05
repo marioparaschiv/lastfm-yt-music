@@ -1,2 +1,2 @@
-docker build --tag "theos-env" .
-docker compose run environment bash
+docker compose build
+docker compose run environment /home/user/src/docker/buildInsideDocker.sh

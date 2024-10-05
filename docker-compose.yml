@@ -1,5 +1,6 @@
 services:
   environment:
-    build: .
+    build:
+      dockerfile: docker/dockerfile
     volumes:
       - ./:/home/user/src
