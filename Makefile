@@ -2,7 +2,7 @@ THEOS_DEVICE_IP = 192.168.0.251
 
 THEOS_PACKAGE_SCHEME=rootless
 ARCHS := arm64 arm64e
-TARGET := iphone:clang:latest:7.0
+TARGET := iphone:clang:latest:14.0
 INSTALL_TARGET_PROCESSES = YouTubeMusic
 
 include $(THEOS)/makefiles/common.mk

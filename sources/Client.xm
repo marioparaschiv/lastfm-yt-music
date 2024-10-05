@@ -123,10 +123,25 @@ static NSString* const LFMBaseURL = @"https://ws.audioscrobbler.com/2.0";
 		NSURL *url = [NSURL URLWithString:_url];
 
 		NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:60];
-		NSURLResponse *response;
-    NSError *error;
 
-		NSData *data = [NSURLConnection sendSynchronousRequest:request returningResponse:&response error:&error];
+		dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+		__block NSURLResponse *response;
+		__block NSError *error;
+		__block NSData *data;
+
+		NSURLSession *session = [NSURLSession sharedSession];
+		NSURLSessionDataTask *dataTask = [session dataTaskWithRequest:request
+			completionHandler:^(NSData *d, NSURLResponse *r, NSError *e) {
+				data = d;
+				response = r;
+				error = e;
+
+				dispatch_semaphore_signal(semaphore);
+			}
+		];
+
+		[dataTask resume];
+		dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
 
 		if (error) {
 			NSLog(@"Faced error while creating token: %@", error);
@@ -192,9 +207,24 @@ static NSString* const LFMBaseURL = @"https://ws.audioscrobbler.com/2.0";
 
 		NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:60];
 
-		NSURLResponse *response;
-    NSError *error;
-    NSData *data = [NSURLConnection sendSynchronousRequest:request returningResponse:&response error:&error];
+		dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+		__block NSURLResponse *response;
+    __block NSError *error;
+    __block NSData *data;
+
+		NSURLSession *session = [NSURLSession sharedSession];
+		NSURLSessionDataTask *dataTask = [session dataTaskWithRequest:request
+			completionHandler:^(NSData *d, NSURLResponse *r, NSError *e) {
+				data = d;
+				response = r;
+				error = e;
+
+				dispatch_semaphore_signal(semaphore);
+			}
+		];
+
+		[dataTask resume];
+		dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
 
 		id json = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
 		if (error) {
@@ -227,26 +257,26 @@ static NSString* const LFMBaseURL = @"https://ws.audioscrobbler.com/2.0";
 	}
 
 	+ (NSString *)urlEncodedString:(NSString *)str {
-		 if ([str isKindOfClass:[NSString class]]) {
-        NSString *s = (__bridge_transfer NSString *)CFURLCreateStringByAddingPercentEscapes(
-            NULL,
-            (__bridge CFStringRef)str,
-            NULL,
-            (CFStringRef)@"!*'();:@&=+$,/?%#[]",
-            kCFStringEncodingUTF8
-        );
-        return s;
+		if ([str isKindOfClass:[NSString class]]) {
+			return [str stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
     }
+
     return str;
 	}
 
+	#pragma clang diagnostic push
+	#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 	+ (NSString *)md5:(NSString*)string {
 		unsigned char digest[CC_MD5_DIGEST_LENGTH], i;
+
 		CC_MD5([string UTF8String], (CC_LONG)[string lengthOfBytesUsingEncoding:NSUTF8StringEncoding], digest);
+
 		NSMutableString *ms = [NSMutableString string];
-		for (i=0;i<CC_MD5_DIGEST_LENGTH;i++) {
+		for (i=0; i < CC_MD5_DIGEST_LENGTH; i++) {
 			[ms appendFormat: @"%02x", (int)(digest[i])];
 		}
+
 		return [ms copy];
 	}
+	#pragma clang diagnostic pop
 @end
