@@ -21,7 +21,7 @@ static BOOL isPlaying = NO;
 		NSString *localID = [item localID];
 
 
-		if ((!currentSongReplayed && currentSongLocalID == localID && mediaTime < 1) && !isPlaying) {
+		if ((!currentSongReplayed && currentSongLocalID == localID && mediaTime < 1) && isPlaying) {
 			currentSongReplayed = YES;
 		}
 
