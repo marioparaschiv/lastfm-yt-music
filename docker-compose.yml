@@ -1,0 +1,7 @@
+name: YTM-LFM-Builder-Container
+services:
+  environment:
+    build:
+      dockerfile: docker/dockerfile
+    volumes:
+      - ./:/home/user/src
